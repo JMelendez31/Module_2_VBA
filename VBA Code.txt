@@ -1,0 +1,60 @@
+Sub StockData()
+
+For Each ws In Worksheets
+'            Variables            '
+Dim Worksheet As String
+Dim i As Long
+Dim j As Long
+Dim Ticker As String
+Dim TickerType As Long
+Dim LastCell As Long
+Dim PercentChange As Double
+Dim YearlyChange As Double
+Dim ClosePrice As Double
+Dim OpenPrice As Double
+
+Worksheet = ws.Name
+'          Column Headers         '
+ws.Cells(1, 9).Value = "Ticker"
+ws.Cells(1, 10).Value = "Yearly Change"
+ws.Cells(1, 11).Value = "Percent Change"
+ws.Cells(1, 12).Value = "Total Stock Volume"
+
+'          Setting Variables         '
+TickerType = 2
+j = 2
+LastCell = ws.Cells(Rows.Count, 1).End(xlUp).Row
+'             Ticker               '
+For i = 2 To LastCell
+Ticker = ws.Cells(i, 1).Value
+ClosePrice = ws.Cells(i, 6).Value
+OpenPrice = ws.Cells(j, 3).Value
+If ws.Cells(i + 1, 1).Value <> Ticker Then
+    ws.Cells(TickerType, 9).Value = Ticker
+'           Yearly Change         '
+    ws.Cells(TickerType, 10).Value = ClosePrice - OpenPrice
+If ws.Cells(TickerType, 10).Value < 0 Then
+    ws.Cells(TickerType, 10).Interior.ColorIndex = 3
+Else
+    ws.Cells(TickerType, 10).Interior.ColorIndex = 4
+End If
+'            Percent Change          '
+If OpenPrice <> 0 Then
+ClosePrice = ws.Cells(i, 6).Value
+OpenPrice = ws.Cells(j, 3).Value
+YearlyChange = OpenPrice - ClosePrice
+    PercentChange = (ClosePrice - OpenPrice) / OpenPrice
+    ws.Cells(TickerType, 11).Value = Format(PercentChange, "0.00%")
+Else
+    ws.Cells(TickerType, 11).Value = Format(0, "Percent")
+End If
+'                                      '
+ws.Cells(TickerType, 12).Value = WorksheetFunction.Sum(Range(ws.Cells(j, 7), ws.Cells(i, 7)))
+TickerType = TickerType + 1
+j = i + 1
+ End If
+          
+Next i
+Worksheets(Worksheet).Columns("A:Z").AutoFit
+Next ws
+End Sub
